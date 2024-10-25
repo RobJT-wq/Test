@@ -1,0 +1,50 @@
+---
+# Install all Services needed to setup Microsoft Active Directory Services
+- name: Install AD Services
+  win_feature:
+    name: AD-Domain-Services
+    include_management_tools: yes
+    include_sub_features: yes
+    state: present
+  register: result
+
+# Set up AD Domain 
+- name: Configure AD Services
+  microsoft.ad.domain:
+    dns_domain_name: "{{ domain_name }}"
+    domain_netbios_name: "{{ netbios_name }}"
+    safe_mode_password: "{{ ad_recovery_password }}"
+    reboot: true
+  register: ad
+  
+- name: Gathering facts again
+  setup:
+
+# Create and fill the Central Group Policy Store
+- name: Copy PolicyDefinitions Folder
+  win_copy:
+    src: C:\Windows\PolicyDefinitions\
+    dest: C:\Windows\SYSVOL\{{ domain_name }}\Policies\PolicyDefinitions\
+    remote_src: yes
+
+- name: Copy CommonData
+  win_copy:
+    src: CommonData
+    dest: C:\
+
+- name: Create Northwind OU
+  microsoft.ad.ou:
+    name: Northwind
+    state: present
+
+- name: Create Workstations OU
+  microsoft.ad.ou:
+    name: Workstations
+    path: OU=Northwind,{{ domain_path }}
+    state: present
+
+- name: Create Workstations OU
+  microsoft.ad.ou:
+    name: Workstations
+    path: OU=Northwind,{{ domain_path }}
+    state: present

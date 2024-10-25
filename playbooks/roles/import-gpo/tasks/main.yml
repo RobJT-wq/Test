@@ -1,0 +1,38 @@
+---
+# Creates GPOs
+- name: Create and import GPOs
+  block:
+    - name: Create our GPOs
+      win_shell: |
+        Import-Module GroupPolicy
+        $gpoName = "{{ item.gpo }}"
+        $gpo = Get-GPO -Name $gpoName -ErrorAction SilentlyContinue
+        if (-not $gpo) {
+          New-GPO -Name $gpoName
+        }
+      loop: "{{ gpo_links }}"
+
+    - name: Import our GPOs from CommonData
+      win_shell: |
+        Import-Module GroupPolicy
+        Import-GPO -BackupGpoName '{{ item.gpo }}' -TargetName '{{ item.gpo }}' -path {{  backup_path  }}
+      loop: "{{ gpo_links }}"
+    
+    - name: Link GPOs
+      win_shell: |
+        Import-Module GroupPolicy
+        $gpoName = "{{ item.gpo }}"
+        $ouPath = "{{ item.ou }}"
+        $gpo = Get-GPO -Name $gpoName
+        $ou = Get-ADOrganizationalUnit -Filter { DistinguishedName -eq $ouPath }
+        if ($gpo -and $ou) {
+          try {
+            New-GPLink -Name $gpoName -Target $ouPath -ErrorAction SilentlyContinue
+          }
+          catch {
+            if ($_.Exception.Message -notlike "*is already linked*") {
+              throw $_
+            }
+          }
+        }
+      loop: "{{ gpo_links }}"

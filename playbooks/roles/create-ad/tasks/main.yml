@@ -43,8 +43,8 @@
     path: OU=Northwind,{{ domain_path }}
     state: present
 
-- name: Create Workstations OU
+- name: Create Northwind Users OU
   microsoft.ad.ou:
-    name: Workstations
+    name: Northwind Users
     path: OU=Northwind,{{ domain_path }}
     state: present

@@ -1,0 +1,23 @@
+---
+# Deploy Domain Controller - change any variables related to the DC here
+# Check hosts.ini for windows and esxi hosts
+- name: Setup Domain Controller
+  hosts: win
+  vars:
+    domain_path: "DC=Northwind,DC=com"
+    domain_name: "Northwind.com"
+    domain_admin: "Northwind.com\\administrator"
+    ad_recovery_password: "Northwind@123"
+    netbios_name: "Northwind"
+    backup_path: "C:\\CommonData"
+    gpo_links:
+      - gpo: "Default Domain Controllers Policy"
+        ou: "OU=Domain Controllers,DC=Northwind,DC=com"
+      - gpo: "LAPS"
+        ou: "OU=Workstations, OU=Northwind,DC=Northwind,DC=com"
+
+  gather_facts: yes
+  roles:
+    - create-ad
+    - setup-firewall
+    - import-gpo

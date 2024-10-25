@@ -1,9 +1,11 @@
 ---
- - name: ping test server
-   hosts: all
-   become: false
-   gather_facts: false
-   tasks:
-     - name: pingtest
-       win_ping:
-       
+- name: ping test server
+  hosts: all
+  gather_facts: false
+  connection: local
+  
+  tasks:
+  
+    - name: ping
+      shell: ping -c 1 -w 2 8.8.8.8
+      ignore_errors: true

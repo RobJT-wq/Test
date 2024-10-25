@@ -1,0 +1,9 @@
+---
+ - name: ping test server
+   hosts: all
+   become: false
+   gather_facts: false
+   tasks:
+     - name: pingtest
+       win_ping:
+       

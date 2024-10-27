@@ -7,5 +7,5 @@
   
   tasks:
   
-    - name: ping
-      win_ping:
+    - name: pingsc
+      win_pingsc:
